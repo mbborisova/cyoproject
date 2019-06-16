@@ -7,10 +7,20 @@
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
 if(!require(Hmisc)) install.packages("Hmisc", repos = "http://cran.us.r-project.org")
+if(!require(here)) install.packages("here", repos = "http://cran.us.r-project.org")
 
-# Read mini ".csv" file (years 2016-2017 only)
+# Read mini ".csv" file (year 2017 only)
 
-seattle_pd_911_mini <- read.csv("/Users/maggie/Documents/code/cyoproject/Seattle PD/Seattle_Police Department_911_Incident Response_2017.csv", 
+# Set working directory in order to load file below 
+# Follow steps below:
+# 1. First, get working directory using:
+# getwd()
+
+# 2. Set working directory to where you save the file from the githib link. In the example below I 
+#    have the file save in the "cyoproject" folder 
+# setwd("~/Documents/code/cyoproject")
+
+seattle_pd_911_mini <- read.csv("Seattle_Police Department_911_Incident Response_2017.csv", 
                                 header = TRUE, sep = ",", quote = "\"", dec = ".", fill = TRUE, comment.char = "")
 
 
