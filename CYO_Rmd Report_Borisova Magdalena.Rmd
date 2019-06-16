@@ -1,0 +1,126 @@
+---
+title: "CYO Project"
+author: "Magdalena Borisova"
+date: "6/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+
+
+
+
+```
+
+## Abstract
+
+
+
+## Introduction
+
+
+
+## Methods
+
+
+
+
+### Sample
+
+__Table 1: Sample characteristics__
+
+|  |   |  |
+| -|:-:|-:|
+|  |   |  |
+|  |   |  |
+|  |   |  |
+|  |   |  |
+|  |   |  |
+|  |   |  |
+
+
+### Data Cleaning, Exploration and Visualization:
+
+### Insights
+
+### Training and test set
+
+### Modeling approach
+
+__Model 1 “Just the Average”:__ 
+
+__Model 2 “Movie Effects Model”:__ 
+
+
+
+## Results
+
+__Table 2: Models__
+
+| Model| RMSE      |
+| :--- |----------:| 
+|   |  | 
+|   |  | 
+|   |  | 
+|   |  |
+|   |  | 
+
+
+
+## Conclusion
+
+### Key Findings
+
+### Limitations
+
+### Future areas of research
+
+
+
+## References
+
+[1]  [Blog post]. Retrieved from (http://blog.echen.me/2011/10/24/winning-the-netflix-prize-a-summary/)
+
+[3] . Retrieved from (https://help.netflix.com/en/node/100639)
+
+[4] . Retrieved from (https://www.imdb.com)
+
+[5] Irizarry, R. (2019). Introduction to Data Science [Book]. Retrieved from (https://rafalab.github.io/dsbook/large-datasets.html#recommendation-systems)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
