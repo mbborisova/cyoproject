@@ -7,21 +7,34 @@
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
 if(!require(Hmisc)) install.packages("Hmisc", repos = "http://cran.us.r-project.org")
-if(!require(here)) install.packages("here", repos = "http://cran.us.r-project.org")
 
-# Read mini ".csv" file (year 2017 only)
 
-# Set working directory in order to load file below 
-# Follow steps below:
-# 1. First, get working directory using:
+# Read mini ".csv" file 
+
+# IMPORTANT NOTE, PLEASE READ:
+# The file below is in the csv format. In order for the code to run on your computer you need to make 
+# sure your working direcotry is set to the location on your laptop where you have saved the csv. file 
+# that you downloaded from the GitHub link that I provided above. Please, follow the steps below to check 
+# your current working directory and to change/set it if necessary so you can run the code I have written
+# for the project. THANK YOU!
+
+# Steps to set working directory in order to load file below: 
+
+# 1. First, get working directory using the code below. To run the code, remove the "#" before it and run it 
+#    as it is:
 # getwd()
 
-# 2. Set working directory to where you save the file from the githib link. In the example below I 
-#    have the file save in the "cyoproject" folder 
+# 2. Set working directory to where you saved the file from the GitHub link. In the example below I 
+#    have the file saved in the "cyoproject" folder on my computer. In your case this will be the 
+#    location where you saved the downloaded csv. file from GitHub. In the parenthesis, include
+#    the path to the location of the file. Include the path within quotations "path":
 # setwd("~/Documents/code/cyoproject")
+
+# 3. Run code below as is:
 
 seattle_pd_911_mini <- read.csv("Seattle_Police Department_911_Incident Response_2017.csv", 
                                 header = TRUE, sep = ",", quote = "\"", dec = ".", fill = TRUE, comment.char = "")
+
 
 
 ##################################################################
@@ -78,6 +91,8 @@ head(seattle_pd_911)
 
 summary(seattle_pd_911)
 
+describe(seattle_pd_911)
+
 
 # Graphs
 
@@ -89,7 +104,7 @@ latitude <- seattle_pd_911$Latitude
 length(latitude)
 length(longitude)
 
-plot(longitude, latitude, pch = 10, cex = 0.01)
+plot(longitude, latitude, pch = 10, cex = 0.01, main = "Seattle Incident Locations")
 
 
 # Split "At.Scene.Time" column to hours, dates, months and weekdays
@@ -115,6 +130,8 @@ seattle_pd_911$At.Scene.Weekday <- format(as.POSIXct(strptime(seattle_pd_911$At.
 
 # Plot hours, dates, months, weekdays, districts, zones, incident groups, census tracts
 
+barplot(table(seattle_pd_911$Initial.Type.Group), main = "Seattle Initial Incident Group")
+
 barplot(table(seattle_pd_911$At.Scene.Weekday), main = "Seattle PD at Scene by Weekday", 
         xlab = "1 = Mon  2 = Tues  3 = Wed  4 = Thurs  5 = Fri  6 = Sat  7 = Sun")
 
@@ -125,12 +142,17 @@ barplot(table(seattle_pd_911$At.Scene.Hour), main = "Seattle PD at Scene by Hour
 
 barplot(table(seattle_pd_911$District.Sector), main = "Seattle Districts")
 
-barplot(table(seattle_pd_911$Initial.Type.Group), main = "Incident Group")
-
 barplot(table(seattle_pd_911$Zone.Beat), main = "Seattle Zones")
+
+barplot(table(seattle_pd_911$Hundred.Block.Location), main = "Seattle Hundred Block Location")
 
 barplot(table(seattle_pd_911$Census.Tract), main = "Seattle Census Tracts")
 
+
+
+##################################################################
+## Violent incident variable 
+##################################################################
 
 # Check counts of incident groups
 
@@ -139,6 +161,7 @@ table(seattle_pd_911$Initial.Type.Group)
 # Check data type 
 
 str(seattle_pd_911$Initial.Type.Group)
+
 
 # Create a violent variable from "Initial.Type. Group" column
 
@@ -151,9 +174,9 @@ str(seattle_pd_911$Initial.Type.Group)
 seattle_pd_911$violent_incident <- c()
 seattle_pd_911$violent_incident <- ifelse(seattle_pd_911$Initial.Type.Group == "ASSAULTS" |
                                             seattle_pd_911$Initial.Type.Group == "CASUALTIES" | 
-                                            seattle_pd_911$Initial.Type.Group == "CRISIS CALL" |
                                             seattle_pd_911$Initial.Type.Group == "GUN CALLS" | 
-                                            seattle_pd_911$Initial.Type.Group == "PERSON DOWN/INJURY" | 
+                                            seattle_pd_911$Initial.Type.Group == "PERSON DOWN/INJURY" |
+                                            seattle_pd_911$Initial.Type.Group == "ROBBERY" | 
                                             seattle_pd_911$Initial.Type.Group == "THERATS, HARRASMENT" | 
                                             seattle_pd_911$Initial.Type.Group == "WEAPON CALLS", 1, 0)
 
@@ -165,6 +188,16 @@ describe(seattle_pd_911$violent_incident)
 
 str(seattle_pd_911$violent_incident)
 
+
+# Plot violent incidents
+
+barplot(table(seattle_pd_911$violent_incident), main = "Seattle Violent Incidents", 
+        xlab = "0 = Non-violent   1 = Violent")
+
+
+##################################################################
+## Data types 
+##################################################################
 # Change data types for character variables in dataset
 
 str(seattle_pd_911)
@@ -179,13 +212,6 @@ str(seattle_pd_911$violent_incident)
 levels(seattle_pd_911$violent_incident)
 length(seattle_pd_911$violent_incident)
 table(seattle_pd_911$violent_incident)
-
-# Check prevalence for outcome variable 
-
-prev_1 <- mean(seattle_pd_911$violent_incident == "1")
-prev_1
-prev_0 <- mean(seattle_pd_911$violent_incident == "0")
-prev_0
 
 seattle_pd_911$hours <- as.factor(seattle_pd_911$At.Scene.Hour)
 str(seattle_pd_911$hours)
@@ -207,22 +233,29 @@ str(seattle_pd_911$months)
 levels(seattle_pd_911$months)
 length(seattle_pd_911$months)
 
+# Check prevalence for outcome variable 
+
+prev_1 <- mean(seattle_pd_911$violent_incident == "1")
+prev_1
+prev_0 <- mean(seattle_pd_911$violent_incident == "0")
+prev_0
+
 
 ##################################################################
-## 2. train and test sets
+## Train and test sets
 ##################################################################
 
-## 2.1  Create train set and validation set
+# Create train set and test set
 
-# test set will be 10% of the movieLens dataset
-# train set will be 90% of the movielens dataset
+# test set will be 10% of the seattle_pd_911 dataset
+# train set will be 90% of the seattle_pd_911 dataset
 
 set.seed(1)
 test_index <- createDataPartition(y = seattle_pd_911$violent_incident, times = 1, p = 0.1, list = FALSE)
 train <- seattle_pd_911[-test_index,]
 test <- seattle_pd_911[test_index,]
 
-## 2.2 Examine the sets
+# Examine the sets
 
 # Check the structure of the datasets
 
@@ -238,6 +271,7 @@ table(train$violent_incident)
 
 table(test$violent_incident)
 
+
 # Use violent variable for modeling 
 
 # Omit NA's if any missed earlier 
@@ -250,79 +284,114 @@ test <- na.omit(test)
 ## Models
 ##################################################################
 
-# KNN3 
+# k-nearest neighbors
 
-# model 1
+# Choose optimal k first
 
-fit <- knn3(violent_incident ~ hours, data = train)
-y_hat_knn <- predict(fit, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+fit_1 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 5)
+y_hat_knn <- predict(fit_1, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-## model 2 with diffrent k's
-
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 11)
+fit_2 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+               Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 10)
 y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 15)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+fit_3 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 15)
+y_hat_knn <- predict(fit_3, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 20)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+fit_4 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 20)
+y_hat_knn <- predict(fit_4, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 25)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+fit_5 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 25)
+y_hat_knn <- predict(fit_5, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 30)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
+fit_6 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 27)
+y_hat_knn <- predict(fit_6, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
 
-## 
-fit_2 <- knn3(violent_incident ~ Incident.Location, data = train)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
-
-fit_2 <- knn3(violent_incident ~ Census.Tract, data = train)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
-
-# Find optimal k for chosen model 
-
-# Takes time. Optimal k = 12, Accuray =  0.5730337
-ks <- seq(3, 18, 3)
-
-library(purrr)
-accuracy <- map_df(ks, function(k){
-  fit <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = k)
-  
-  y_hat <- predict(fit, train, type = "class")
-  cm_train <- confusionMatrix(data = y_hat, reference = train$violent_incident)
-  train_error <- cm_train$overall["Accuracy"]
-  
-  y_hat <- predict(fit, test, type = "class")
-  cm_test <- confusionMatrix(data = y_hat, reference = test$violent_incident)
-  test_error <- cm_test$overall["Accuracy"]
-  
-  tibble(train = train_error, test = test_error)
-})
-
-ks[which.max(accuracy$test)]
-
-max(accuracy$test)
-
-fit_2 <- knn3(violent_incident ~ hours + Incident.Location, data = train, k = 12)
-y_hat_knn <- predict(fit_2, test, type = "class")
-confusionMatrix(y_hat_knn, test$violent_incident)$overall["Accuracy"]
-confusionMatrix(y_hat_knn, test$violent_incident)
+fit_7 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 29)
+y_hat_knn <- predict(fit_7, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
 
 
-## RF
+# Take one predictor out at a time from model to check if accuracy, sensitivity or specificity improves
 
-if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
+fit_8 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector + Zone.Beat, 
+              data = train, k = 29)
+y_hat_knn <- predict(fit_8, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
 
-library(randomForest)
-train_rf <- randomForest(violent_incident ~ hours, data=train)
-confusionMatrix(predict(train_rf, test), test$violent_incident)$overall["Accuracy"]
+fit_9 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location + District.Sector, 
+              data = train, k = 29)
+y_hat_knn <- predict(fit_9, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+fit_10 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+              Hundred.Block.Location, 
+              data = train, k = 29)
+y_hat_knn <- predict(fit_10, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+fit_11 <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location,
+               data = train, k = 29)
+y_hat_knn <- predict(fit_11, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+fit_12 <- knn3(violent_incident ~ hours + weekdays + months, data = train, k = 29)
+y_hat_knn <- predict(fit_12, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+fit_13 <- knn3(violent_incident ~ hours + weekdays, data = train, k = 29)
+y_hat_knn <- predict(fit_13, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+fit_14 <- knn3(violent_incident ~ hours, data = train, k = 29)
+y_hat_knn <- predict(fit_14, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
+
+# keep model with all predictors in
+
+fit_model <- knn3(violent_incident ~ hours + weekdays + months + Incident.Location +
+                Hundred.Block.Location + District.Sector + Zone.Beat + Census.Tract, 
+              data = train, k = 29)
+y_hat_knn <- predict(fit_model, test, type = "class")
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$overall["Accuracy"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Sensitivity"]
+confusionMatrix(y_hat_knn, test$violent_incident, positive = "1")$byClass["Specificity"]
+
