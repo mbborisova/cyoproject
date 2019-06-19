@@ -14,5 +14,5 @@ Report:
 - contains project report (RMD format and PDF format)
 - contains project code (in RMD format)
 
-.csv. file
+.csv file
 - contains Seattle PD Incident Response Dataset
